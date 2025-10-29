@@ -44,7 +44,6 @@ public class FileDataStorage : IDataStorage
                 }
             }
 
-            // Обновляем статистику
             foreach (var newStat in stats)
             {
                 var key = (newStat.UserId, newStat.EventType);
@@ -58,7 +57,6 @@ public class FileDataStorage : IDataStorage
                 }
             }
 
-            // Сохраняем обновленные данные
             var allStats = existingStats.Values.OrderBy(s => s.UserId).ThenBy(s => s.EventType).ToList();
             var json = JsonSerializer.Serialize(allStats, new JsonSerializerOptions 
             { 

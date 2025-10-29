@@ -16,7 +16,6 @@ public class EventObserver : IObserver<UserEvent>, IDisposable
         _dataStorage = dataStorage;
         _eventCounts = new ConcurrentDictionary<(int, string), int>();
         
-        // Сохраняем статистику каждые 30 секунд
         _saveTimer = new Timer(SaveStatistics, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
         
         Console.WriteLine("[EventObserver] Инициализирован Observer для обработки событий");
@@ -40,14 +39,12 @@ public class EventObserver : IObserver<UserEvent>, IDisposable
     public void OnError(Exception error)
     {
         Console.WriteLine($"[EventObserver] Получена ошибка в потоке: {error.Message}");
-        // Сохраняем текущую статистику перед завершением
         SaveStatistics(null);
     }
 
     public void OnCompleted()
     {
         Console.WriteLine("[EventObserver] Поток событий завершен");
-        // Сохраняем финальную статистику
         SaveStatistics(null);
     }
 
