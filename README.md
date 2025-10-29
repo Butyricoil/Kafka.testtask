@@ -43,3 +43,20 @@ curl http://localhost:8080/api/stats/storage-info
 - **GET /api/stats/users** - список пользователей
 - **GET /api/stats?storage=postgresql** - статистика из PostgreSQL
 - **GET /api/stats?storage=file** - статистика из файлов
+
+.envariment
+
+KAFKA_BOOTSTRAP_SERVERS
+KAFKA_TOPIC
+KAFKA_GROUP_ID
+
+POSTGRES_DB
+POSTGRES_USER
+POSTGRES_PASSWORD
+POSTGRES_PORT
+POSTGRES_CONNECTION_STRING
+
+ASPNETCORE_ENVIRONMENT
+ASPNETCORE_URLS
+FILE_STORAGE_PATH
+UsePostgreSQL
