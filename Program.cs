@@ -11,7 +11,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<EventObservable>();
 
-var usePostgreSQL = true;
+var usePostgreSQL = builder.Configuration.GetValue<bool>("UsePostgreSQL", true);
 Console.WriteLine($"[Program] Используемое хранилище: {(usePostgreSQL ? "PostgreSQL" : "File")}");
 Console.WriteLine($"[Program] KAFKA_BOOTSTRAP_SERVERS: {builder.Configuration["KAFKA_BOOTSTRAP_SERVERS"]}");
 Console.WriteLine($"[Program] KAFKA_TOPIC: {builder.Configuration["KAFKA_TOPIC"]}");

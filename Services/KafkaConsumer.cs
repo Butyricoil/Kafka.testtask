@@ -13,12 +13,12 @@ public class KafkaConsumer : BackgroundService
     public KafkaConsumer(IConfiguration configuration, EventObservable eventObservable)
     {
         _eventObservable = eventObservable;
-        _topic = configuration["KAFKA_TOPIC"] ?? "user-events";
+        _topic = configuration["KAFKA_TOPIC"] ?? throw new InvalidOperationException("KAFKA_TOPIC не найден в конфигурации");
 
         var config = new ConsumerConfig
         {
-            BootstrapServers = configuration["KAFKA_BOOTSTRAP_SERVERS"] ?? "localhost:9092",
-            GroupId = configuration["KAFKA_GROUP_ID"] ?? "user-events-group",
+            BootstrapServers = configuration["KAFKA_BOOTSTRAP_SERVERS"] ?? throw new InvalidOperationException("KAFKA_BOOTSTRAP_SERVERS не найден в конфигурации"),
+            GroupId = configuration["KAFKA_GROUP_ID"] ?? throw new InvalidOperationException("KAFKA_GROUP_ID не найден в конфигурации"),
             AutoOffsetReset = AutoOffsetReset.Earliest,
             EnableAutoCommit = true,
             StatisticsIntervalMs = 5000,
