@@ -1,0 +1,612 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "MSDisTestTask - Kafka Event Processing API",
+		"description": "API для получения статистики событий пользователей, обрабатываемых из Kafka",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345678"
+	},
+	"item": [
+		{
+			"name": "Stats",
+			"item": [
+				{
+					"name": "Get All Stats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response contains valid stats objects\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0]).to.have.property('userId');",
+									"        pm.expect(jsonData[0]).to.have.property('eventType');",
+									"        pm.expect(jsonData[0]).to.have.property('count');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"stats"
+							]
+						},
+						"description": "Получить статистику всех событий пользователей"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/stats",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"stats"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"userId\": 123,\n    \"eventType\": \"click\",\n    \"count\": 15\n  },\n  {\n    \"userId\": 456,\n    \"eventType\": \"hover\",\n    \"count\": 8\n  },\n  {\n    \"userId\": 123,\n    \"eventType\": \"view\",\n    \"count\": 3\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get User Stats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"All stats belong to requested user\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const userId = parseInt(pm.request.url.path[3]);",
+									"    ",
+									"    jsonData.forEach(function(stat) {",
+									"        pm.expect(stat.userId).to.eql(userId);",
+									"    });",
+									"});",
+									"",
+									"pm.test(\"Response contains valid stats objects\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0]).to.have.property('userId');",
+									"        pm.expect(jsonData[0]).to.have.property('eventType');",
+									"        pm.expect(jsonData[0]).to.have.property('count');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stats/user/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"stats",
+								"user",
+								"{{user_id}}"
+							]
+						},
+						"description": "Получить статистику событий для конкретного пользователя"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/stats/user/123",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"stats",
+										"user",
+										"123"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"userId\": 123,\n    \"eventType\": \"click\",\n    \"count\": 15\n  },\n  {\n    \"userId\": 123,\n    \"eventType\": \"view\",\n    \"count\": 3\n  }\n]"
+						},
+						{
+							"name": "User Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/stats/user/999",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"stats",
+										"user",
+										"999"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "[]"
+						}
+					]
+				}
+			],
+			"description": "Эндпоинты для получения статистики событий пользователей"
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array of user IDs\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0]).to.be.a('number');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stats/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"stats",
+								"users"
+							]
+						},
+						"description": "Получить список всех пользователей"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Users from PostgreSQL",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stats/users?storage=postgresql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"stats",
+								"users"
+							],
+							"query": [
+								{
+									"key": "storage",
+									"value": "postgresql"
+								}
+							]
+						},
+						"description": "Получить список пользователей из PostgreSQL"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Users from File System",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stats/users?storage=file",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"stats",
+								"users"
+							],
+							"query": [
+								{
+									"key": "storage",
+									"value": "file"
+								}
+							]
+						},
+						"description": "Получить список пользователей из файловой системы"
+					},
+					"response": []
+				}
+			],
+			"description": "Эндпоинты для получения списка пользователей"
+		},
+		{
+			"name": "Storage",
+			"item": [
+				{
+					"name": "Get Stats from PostgreSQL",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stats?storage=postgresql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"stats"
+							],
+							"query": [
+								{
+									"key": "storage",
+									"value": "postgresql"
+								}
+							]
+						},
+						"description": "Получить статистику из PostgreSQL"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Stats from File System",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stats?storage=file",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"stats"
+							],
+							"query": [
+								{
+									"key": "storage",
+									"value": "file"
+								}
+							]
+						},
+						"description": "Получить статистику из файловой системы"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Storage Info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains storage info\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('currentStorage');",
+									"    pm.expect(jsonData).to.have.property('availableStorages');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stats/storage-info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"stats",
+								"storage-info"
+							]
+						},
+						"description": "Получить информацию о доступных хранилищах"
+					},
+					"response": []
+				}
+			],
+			"description": "Эндпоинты для работы с разными типами хранилищ"
+		},
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Basic Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 2000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"pm.test(\"Health status is healthy\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('healthy');",
+									"});",
+									"",
+									"pm.test(\"Response contains required fields\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('timestamp');",
+									"    pm.expect(jsonData).to.have.property('version');",
+									"    pm.expect(jsonData).to.have.property('uptime');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"health"
+							]
+						},
+						"description": "Базовая проверка здоровья сервиса"
+					},
+					"response": []
+				},
+				{
+					"name": "Detailed Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains components health\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('components');",
+									"    pm.expect(jsonData.components).to.have.property('storage');",
+									"    pm.expect(jsonData.components).to.have.property('kafka');",
+									"});",
+									"",
+									"pm.test(\"Response contains system info\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('system');",
+									"    pm.expect(jsonData.system).to.have.property('environment');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/health/detailed",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"health",
+								"detailed"
+							]
+						},
+						"description": "Детальная проверка здоровья всех компонентов"
+					},
+					"response": []
+				}
+			],
+			"description": "Проверка работоспособности API и всех компонентов"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "123",
+			"type": "string"
+		}
+	]
+}

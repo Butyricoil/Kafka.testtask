@@ -26,6 +26,9 @@ else
     builder.Services.AddScoped<IDataStorage, FileDataStorage>();
 }
 
+builder.Services.AddScoped<PostgreSqlDataStorage>();
+builder.Services.AddScoped<FileDataStorage>();
+
 builder.Services.AddScoped<EventObserver>();
 builder.Services.AddHostedService<KafkaConsumer>();
 

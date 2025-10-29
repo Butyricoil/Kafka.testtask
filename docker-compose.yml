@@ -1,11 +1,12 @@
-name: msdis
-
 services:
+  # Kafka service
   kafka:
     image: confluentinc/cp-kafka:7.6.1
     container_name: msdis-kafka
+    hostname: kafka
     ports:
       - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -24,59 +25,76 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     volumes:
       - kafka_data:/var/lib/kafka/data
+    networks:
+      - msdis-network
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
+      interval: 30s
+      timeout: 10s
       retries: 5
+      start_period: 60s
 
+  # PostgreSQL service
   postgres:
     image: postgres:16-alpine
     container_name: msdis-postgres
+    hostname: postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: events
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - msdis-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d events"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
+  # Application service
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: msdis-app
+    hostname: app
     depends_on:
       kafka:
         condition: service_healthy
       postgres:
         condition: service_healthy
     environment:
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      ASPNETCORE_URLS: ${ASPNETCORE_URLS}
-      UsePostgreSQL: true
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
-      KAFKA_TOPIC: ${KAFKA_TOPIC}
-      KAFKA_GROUP_ID: ${KAFKA_GROUP_ID}
-      POSTGRES_CONNECTION_STRING: ${POSTGRES_CONNECTION_STRING}
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      UsePostgreSQL: "true"
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_TOPIC: user-events
+      KAFKA_GROUP_ID: msdis-consumer
+      POSTGRES_CONNECTION_STRING: "Host=postgres;Port=5432;Username=postgres;Password=postgres;Database=events"
       FILE_STORAGE_PATH: user_event_stats.json
     ports:
       - "8080:8080"
+    volumes:
+      - ./user_event_stats.json:/app/user_event_stats.json
+    networks:
+      - msdis-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/stats"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
+# Networks
+networks:
+  msdis-network:
+    driver: bridge
+
+# Volumes
 volumes:
-  pgdata: {}
-  kafka_data: {}
+  pgdata:
+    driver: local
+  kafka_data:
+    driver: local
 
 
