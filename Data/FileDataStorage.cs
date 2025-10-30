@@ -10,7 +10,7 @@ public class FileDataStorage : IDataStorage
 
     public FileDataStorage(IConfiguration configuration)
     {
-        _filePath = configuration["FILE_STORAGE_PATH"] ?? "user_event_stats.json";
+        _filePath = configuration["FILE_STORAGE_PATH"];
         _fileLock = new SemaphoreSlim(1, 1);
         
         Console.WriteLine($"[FileDataStorage] Инициализирован файловый storage: {_filePath}");

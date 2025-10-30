@@ -1,23 +1,50 @@
 # MSDisTestTask
 
-Тестовое задание - сервис обработки событий пользователей из Kafka с сохранением статистики в PostgreSQL/файлы и REST API для получения данных.
+User event processing service that consumes events from Kafka, stores statistics in PostgreSQL/files, and provides REST API for data retrieval.
 
-## Установка и запуск
+## Installation and Setup
 
-### Предварительные требования  
+### Prerequisites  
 - Docker
 - Docker Compose
 
-### Запуск проекта
+### Running the Project
 ```bash
 git clone <repository-url>
 cd MSDisTestTask
 docker-compose up -d --build
 ```
 
-## Проверка эндпойнтов
+## ⚠️ Important: Creating Kafka Messages
 
-### Через curl
+**Don't forget to create test messages in Kafka!** The service consumes user events from Kafka topic. You need to produce messages to test the functionality.
+
+### Sample Kafka Message Format
+```json
+{
+  "userId": "123",
+  "eventType": "login",
+  "timestamp": "2024-10-30T10:00:00Z",
+  "metadata": {
+    "source": "web",
+    "sessionId": "abc123"
+  }
+}
+```
+
+### Creating Test Messages
+You can use Kafka CLI tools or any Kafka client to produce messages to the configured topic (check `KAFKA_TOPIC` in .env file).
+
+Example using Kafka CLI:
+```bash
+docker exec -it <kafka-container-name> /bin/bash
+
+kafka-console-producer --bootstrap-server localhost:9092 --topic user-events
+```
+
+## Testing Endpoints
+
+### Using curl
 ```bash
 curl http://localhost:8080/api/health
 curl http://localhost:8080/api/health/detailed
@@ -30,33 +57,52 @@ curl "http://localhost:8080/api/stats?storage=file"
 curl http://localhost:8080/api/stats/storage-info
 ```
 
-### Через Postman
-Импортируйте файлы в Postman:
-- **Коллекция**: `MSDisTestTask.postman_collection.json` - содержит все запросы к API
-- **Окружение**: `MSDisTestTask.postman_environment.json` - содержит переменные (базовый URL и порт)
+### Using Postman
+Import the following files into Postman:
+- **Collection**: `MSDisTestTask.postman_collection.json` - contains all API requests
+- **Environment**: `MSDisTestTask.postman_environment.json` - contains variables (base URL and port)
 
 ## API Endpoints
-- **GET /api/health** - проверка здоровья
-- **GET /api/health/detailed** - детальная проверка компонентов
-- **GET /api/stats** - получить статистику
-- **GET /api/stats/user/{userId}** - статистика пользователя
-- **GET /api/stats/users** - список пользователей
-- **GET /api/stats?storage=postgresql** - статистика из PostgreSQL
-- **GET /api/stats?storage=file** - статистика из файлов
+- **GET /api/health** - health check
+- **GET /api/health/detailed** - detailed component health check
+- **GET /api/stats** - get statistics
+- **GET /api/stats/user/{userId}** - user statistics
+- **GET /api/stats/users** - list of users
+- **GET /api/stats?storage=postgresql** - statistics from PostgreSQL
+- **GET /api/stats?storage=file** - statistics from files
+- **GET /api/stats/storage-info** - storage information
 
-.envariment
+## Environment Variables
 
-KAFKA_BOOTSTRAP_SERVERS
-KAFKA_TOPIC
-KAFKA_GROUP_ID
+### Kafka Configuration
+```
+KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+KAFKA_TOPIC=user-events
+KAFKA_GROUP_ID=user-event-processor
+```
 
-POSTGRES_DB
-POSTGRES_USER
-POSTGRES_PASSWORD
-POSTGRES_PORT
-POSTGRES_CONNECTION_STRING
+### PostgreSQL Configuration
+```
+POSTGRES_DB=userdb
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
+POSTGRES_PORT=5432
+POSTGRES_CONNECTION_STRING=Host=localhost;Port=5432;Database=userdb;Username=postgres;Password=password
+```
 
-ASPNETCORE_ENVIRONMENT
-ASPNETCORE_URLS
-FILE_STORAGE_PATH
-UsePostgreSQL
+### Application Configuration
+```
+ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8080
+FILE_STORAGE_PATH=./user_event_stats.json
+UsePostgreSQL=true
+```
+
+## Architecture
+
+The service implements:
+- **Kafka Consumer**: Consumes user events from Kafka topic
+- **Observer Pattern**: Processes events using EventObservable/EventObserver
+- **Dual Storage**: Supports both PostgreSQL and file-based storage
+- **REST API**: Provides endpoints for statistics retrieval
+- **Health Checks**: Monitors service and component health
