@@ -10,7 +10,7 @@ User event processing service that consumes events from Kafka, stores statistics
 
 ### Running the Project
 ```bash
-git clone <repository-url>
+git clone https://github.com/Butyricoil/Kafka.testtask
 cd MSDisTestTask
 docker-compose up -d --build
 ```
